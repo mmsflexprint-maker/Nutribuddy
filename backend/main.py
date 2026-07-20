@@ -9,7 +9,6 @@ import os
 
 load_dotenv()
 
-# Paste your AQ... API key here
 client = genai.Client(
     api_key=os.getenv("GOOGLE_API_KEY")
 )
