@@ -1,10 +1,16 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from google import genai
 
 # Paste your AQ... API key here
-client = genai.Client(api_key="AQ.Ab8RN6KWL49l33-3qxrnS_8M74taK0wIBZMc-K2bws7ziv9IZA")
+client = genai.Client(
+    api_key=os.getenv("GOOGLE_API_KEY")
+)
 
 app = FastAPI()
 
