@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
- static const String baseUrl = "https://nutribuddy-backend-kkc1.onrender.com/";
+ static const String baseUrl =
+    "https://nutribuddy-backend.onrender.com";
 
   static Future<String> askAI(String message) async {
     try {
