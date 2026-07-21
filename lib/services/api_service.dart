@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
- static const String baseUrl =
-    "https://nutribuddy-backend.onrender.com";
+  static const String baseUrl =
+      "https://nutribuddy-backend.onrender.com";
 
   static Future<String> askAI(String message) async {
     try {
@@ -19,12 +19,12 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return data["response"];
+        return data["reply"].toString();
+      } else {
+        return "Server error: ${response.statusCode}";
       }
-
-      return "Server Error";
     } catch (e) {
-      return "Unable to connect to AI server.";
+      return "Connection error: $e";
     }
   }
 }
