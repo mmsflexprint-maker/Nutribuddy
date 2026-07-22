@@ -1,118 +1,58 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from google import genai
 
+
+# Gemini API key
+key = os.getenv("GOOGLE_API_KEY")
+
+client = genai.Client(
+    api_key=key
+)
+
+for model in client.models.list():
+    print(model.name)
 
 app = FastAPI()
-
-
-# Allow Flutter app to connect
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 class ChatRequest(BaseModel):
     message: str
 
 
-@app.get("/")
-def home():
-    return {"status": "NutriBuddy Backend Running"}
-
 
 @app.post("/chat")
-def chat(data: ChatRequest):
+def chat(request: ChatRequest):
 
-    message = data.message.lower()
+    try:
+        prompt = f"""
+You are NutriBuddy AI, a personalized health and nutrition assistant.
 
-    if "weight loss" in message or "lose weight" in message:
-        reply = """
-Weight Loss Diet Tips:
+User asked:
+{request.message}
 
-• Eat more vegetables and fruits
-• Include protein like eggs, dal, paneer, chicken or fish
-• Avoid sugary drinks and junk food
-• Drink enough water
-• Exercise or walk daily
+Provide a detailed but simple answer.
+
+Always include:
+⚠️ Disclaimer: This is general health guidance only. Please consult a doctor or registered dietitian before making major diet changes.
 """
 
-    elif "diabetes" in message or "sugar" in message:
-        reply = """
-Diabetes Friendly Tips:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
 
-• Avoid excess sugar
-• Choose whole grains
-• Eat vegetables and protein
-• Keep regular meal timings
-• Monitor portion sizes
-"""
+        return {
+            "reply": response.text
+        }
 
-    elif "breakfast" in message:
-        reply = """
-Healthy Breakfast Ideas:
-
-• Oats with fruits
-• Sprouts
-• Eggs with whole wheat bread
-• Poha or upma with vegetables
-"""
-
-    elif "water" in message:
-        reply = """
-Water Tips:
-
-• Drink water regularly
-• Aim for around 8 glasses daily
-• Drink more during exercise or hot weather
-"""
-
-    elif "exercise" in message or "workout" in message:
-        reply = """
-Exercise Tips:
-
-• Walk 30 minutes daily
-• Do strength exercises 2-3 times per week
-• Stretch regularly
-"""
-
-    elif "diet plan" in message or "meal plan" in message:
-        reply = """
-Sample Healthy Diet Plan:
-
-Morning:
-- Warm water
-- Healthy breakfast
-
-Lunch:
-- Roti/rice
-- Vegetables
-- Protein source
-
-Evening:
-- Fruits or nuts
-
-Dinner:
-- Light balanced meal
-"""
-
-    else:
-        reply = """
-Hello! I am NutriBuddy Health Assistant.
-
-I can help you with:
-✓ Diet plans
-✓ Weight loss
-✓ Healthy meals
-✓ Exercise tips
-✓ Water intake
-✓ Nutrition advice
-"""
-
-    return {
-        "reply": reply
-    }
+    except Exception as e:
+        return {
+            "reply": f"AI Error: {str(e)}"
+        }
