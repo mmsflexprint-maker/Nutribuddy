@@ -21,6 +21,9 @@ for model in client.models.list():
 
 app = FastAPI()
 
+@app.get("/")
+def home():
+    return {"status": "NutriBuddy Backend Running"}
 
 class ChatRequest(BaseModel):
     message: str
